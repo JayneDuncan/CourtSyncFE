@@ -7,6 +7,7 @@ import { Button } from '../ui/Button';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { AuthToggle } from './AuthToggle';
 import { SignUpFields } from './SignUpFields';
+import { ForgotPasswordModal } from './ForgotPasswordModal';
 
 interface FormData {
   email: string;
@@ -20,6 +21,7 @@ export const LoginForm: React.FC = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',
@@ -142,12 +144,12 @@ export const LoginForm: React.FC = () => {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.4, delay: 1.1 }}
               >
-                <a 
-                  href="#" 
+                <button
+                  onClick={() => setShowForgotPassword(true)}
                   className="text-xs text-mint-400 hover:text-mint-300 transition-colors hover:underline"
                 >
                   Forgot password?
-                </a>
+                </button>
               </motion.div>
             )}
 
@@ -185,6 +187,12 @@ export const LoginForm: React.FC = () => {
             </button>
           </motion.div>
         </motion.div>
+
+        {/* Forgot Password Modal */}
+        <ForgotPasswordModal 
+          isOpen={showForgotPassword}
+          onClose={() => setShowForgotPassword(false)}
+        />
       </div>
     </motion.div>
   );
