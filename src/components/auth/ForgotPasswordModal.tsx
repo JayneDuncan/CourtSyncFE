@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Mail, ArrowLeft, ArrowRight, Shield, Clock } from 'lucide-react';
+import { X, Mail, ArrowLeft, ArrowRight, Shield, Clock, Phone } from 'lucide-react';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -14,8 +14,9 @@ type Step = 'method' | 'email' | 'otp' | 'reset' | 'success';
 
 export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ isOpen, onClose }) => {
   const [currentStep, setCurrentStep] = useState<Step>('method');
-  const [selectedMethod, setSelectedMethod] = useState<'otp' | 'email'>('otp');
+  const [selectedMethod, setSelectedMethod] = useState<'email-otp' | 'phone-otp' | 'email-link'>('email-otp');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -23,9 +24,38 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ isOpen
   const [error, setError] = useState('');
   const [countdown, setCountdown] = useState(0);
 
-  const handleMethodSelect = (method: 'otp' | 'email') => {
+  const handleMethodSelect = (method: 'email-otp' | 'phone-otp' | 'email-link') => {
     setSelectedMethod(method);
-    setCurrentStep('email');
+    if (method === 'phone-otp') {
+      setCurrentStep('phone');
+    } else {
+      setCurrentStep('email');
+    }
+  };
+
+  const handlePhoneSubmit = async () => {
+    if (!phone) {
+      setError('Please enter your phone number');
+      return;
+    }
+    
+    // Basic phone validation
+    const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+    if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
+      setError('Please enter a valid phone number');
+      return;
+    }
+    
+    setIsLoading(true);
+    setError('');
+    
+    // Simulate API call
+    setTimeout(() => {
+      setIsLoading(false);
+      setCurrentStep('otp');
+      setCountdown(60);
+      startCountdown();
+    }, 2000);
   };
 
   const handleEmailSubmit = async () => {
@@ -40,7 +70,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ isOpen
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
-      if (selectedMethod === 'otp') {
+      if (selectedMethod === 'email-otp') {
         setCurrentStep('otp');
         setCountdown(60);
         startCountdown();
@@ -130,6 +160,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ isOpen
   const resetModal = () => {
     setCurrentStep('method');
     setEmail('');
+    setPhone('');
     setOtp(['', '', '', '', '', '']);
     setNewPassword('');
     setConfirmPassword('');
@@ -156,7 +187,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ isOpen
 
       <div className="space-y-3">
         <motion.button
-          onClick={() => handleMethodSelect('otp')}
+          onClick={() => handleMethodSelect('email-otp')}
           className="w-full p-4 bg-slate-800/50 border-2 border-slate-700/50 rounded-xl hover:border-mint-500/50 transition-all duration-300 text-left group"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
@@ -166,14 +197,31 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ isOpen
               <Shield className="w-5 h-5 text-mint-400" />
             </div>
             <div>
-              <h4 className="text-white font-medium">OTP Verification</h4>
+              <h4 className="text-white font-medium">Email OTP</h4>
               <p className="text-slate-400 text-sm">Receive a 6-digit code via email</p>
             </div>
           </div>
         </motion.button>
 
         <motion.button
-          onClick={() => handleMethodSelect('email')}
+          onClick={() => handleMethodSelect('phone-otp')}
+          className="w-full p-4 bg-slate-800/50 border-2 border-slate-700/50 rounded-xl hover:border-mint-500/50 transition-all duration-300 text-left group"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center group-hover:bg-green-500/30 transition-colors">
+              <Phone className="w-5 h-5 text-green-400" />
+            </div>
+            <div>
+              <h4 className="text-white font-medium">SMS OTP</h4>
+              <p className="text-slate-400 text-sm">Receive a 6-digit code via SMS</p>
+            </div>
+          </div>
+        </motion.button>
+
+        <motion.button
+          onClick={() => handleMethodSelect('email-link')}
           className="w-full p-4 bg-slate-800/50 border-2 border-slate-700/50 rounded-xl hover:border-mint-500/50 transition-all duration-300 text-left group"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
@@ -192,6 +240,57 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ isOpen
     </motion.div>
   );
 
+  const renderPhoneStep = () => (
+    <motion.div
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+      className="space-y-4"
+    >
+      <div className="text-center mb-6">
+        <h3 className="text-xl font-bold text-white mb-2">Enter Your Phone Number</h3>
+        <p className="text-slate-300 text-sm">
+          We'll send you a 6-digit verification code via SMS
+        </p>
+      </div>
+
+      <ErrorMessage message={error} show={!!error} />
+
+      <Input
+        type="tel"
+        name="phone"
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+        placeholder="Enter your phone number"
+        label="Phone Number"
+        icon={Phone}
+      />
+
+      <div className="text-xs text-slate-400">
+        <p>Enter your phone number with country code (e.g., +84 123 456 789)</p>
+      </div>
+
+      <div className="flex space-x-3">
+        <Button
+          variant="secondary"
+          onClick={() => setCurrentStep('method')}
+          icon={ArrowLeft}
+          className="flex-1"
+        >
+          Back
+        </Button>
+        <Button
+          onClick={handlePhoneSubmit}
+          loading={isLoading}
+          icon={ArrowRight}
+          className="flex-1"
+        >
+          Send SMS
+        </Button>
+      </div>
+    </motion.div>
+  );
+
   const renderEmailStep = () => (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
@@ -202,7 +301,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ isOpen
       <div className="text-center mb-6">
         <h3 className="text-xl font-bold text-white mb-2">Enter Your Email</h3>
         <p className="text-slate-300 text-sm">
-          {selectedMethod === 'otp' 
+          {selectedMethod === 'email-otp' 
             ? 'We\'ll send you a 6-digit verification code' 
             : 'We\'ll send you a secure reset link'
           }
@@ -236,7 +335,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ isOpen
           icon={ArrowRight}
           className="flex-1"
         >
-          {selectedMethod === 'otp' ? 'Send OTP' : 'Send Link'}
+          {selectedMethod === 'email-otp' ? 'Send OTP' : 'Send Link'}
         </Button>
       </div>
     </motion.div>
@@ -252,7 +351,11 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ isOpen
       <div className="text-center mb-6">
         <h3 className="text-xl font-bold text-white mb-2">Enter Verification Code</h3>
         <p className="text-slate-300 text-sm">
-          We've sent a 6-digit code to <span className="text-mint-400">{email}</span>
+          We've sent a 6-digit code to{' '}
+          <span className="text-mint-400">
+            {selectedMethod === 'phone-otp' ? phone : email}
+          </span>
+          {selectedMethod === 'phone-otp' ? ' via SMS' : ' via email'}
         </p>
       </div>
 
@@ -291,7 +394,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ isOpen
       <div className="flex space-x-3">
         <Button
           variant="secondary"
-          onClick={() => setCurrentStep('email')}
+          onClick={() => setCurrentStep(selectedMethod === 'phone-otp' ? 'phone' : 'email')}
           icon={ArrowLeft}
           className="flex-1"
         >
@@ -382,18 +485,18 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ isOpen
       </div>
 
       <h3 className="text-xl font-bold text-white mb-2">
-        {selectedMethod === 'otp' ? 'Password Reset Successfully!' : 'Reset Link Sent!'}
+        {selectedMethod === 'email-link' ? 'Reset Link Sent!' : 'Password Reset Successfully!'}
       </h3>
       
       <p className="text-slate-300 text-sm mb-6">
-        {selectedMethod === 'otp' 
-          ? 'Your password has been reset successfully. You can now sign in with your new password.'
-          : `We've sent a secure reset link to ${email}. Please check your email and follow the instructions.`
+        {selectedMethod === 'email-link' 
+          ? `We've sent a secure reset link to ${email}. Please check your email and follow the instructions.`
+          : 'Your password has been reset successfully. You can now sign in with your new password.'
         }
       </p>
 
       <Button onClick={handleClose}>
-        {selectedMethod === 'otp' ? 'Sign In Now' : 'Got It'}
+        {selectedMethod === 'email-link' ? 'Got It' : 'Sign In Now'}
       </Button>
     </motion.div>
   );
@@ -424,6 +527,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ isOpen
         <AnimatePresence mode="wait">
           {currentStep === 'method' && renderMethodSelection()}
           {currentStep === 'email' && renderEmailStep()}
+          {currentStep === 'phone' && renderPhoneStep()}
           {currentStep === 'otp' && renderOtpStep()}
           {currentStep === 'reset' && renderResetStep()}
           {currentStep === 'success' && renderSuccessStep()}
