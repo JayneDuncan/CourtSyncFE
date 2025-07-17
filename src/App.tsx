@@ -1,8 +1,8 @@
 import React from 'react';
-import { FacilityManagementPage } from './pages/FacilityManagementPage';
+import { FacilityOwnerDashboard } from './pages/FacilityOwnerDashboard';
 
 function App() {
-  return <FacilityManagementPage />;
+  return <FacilityOwnerDashboard />;
 }
 
 export default App;
