@@ -57,7 +57,7 @@ export const FacilityCard: React.FC<FacilityCardProps> = ({ facility, index }) =
       {/* Actions */}
       <div className="flex space-x-2">
         <button className="flex-1 bg-mint-500/20 text-mint-400 py-2 px-4 rounded-xl hover:bg-mint-500/30 transition-colors text-sm font-medium">
-          Manage Courts
+          Manage Facility
         </button>
         <button className="p-2 bg-slate-700/50 text-slate-400 rounded-xl hover:text-white hover:bg-slate-700 transition-colors">
           <Settings className="w-4 h-4" />
