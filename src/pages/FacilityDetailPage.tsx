@@ -10,15 +10,15 @@ import {
   Edit3, 
   Save, 
   X,
-  Users,
-  Settings,
-  BarChart3,
   Calendar,
-  DollarSign
+  DollarSign,
+  Users,
+  BarChart3,
+  Settings,
+  ChevronRight
 } from 'lucide-react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
 
 interface FacilityDetail {
@@ -65,17 +65,60 @@ export const FacilityDetailPage: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
     description: facility.description,
-    openingTime: facility.openingTime.slice(0, 5), // Remove seconds
-    closingTime: facility.closingTime.slice(0, 5)   // Remove seconds
+    openingTime: facility.openingTime.slice(0, 5),
+    closingTime: facility.closingTime.slice(0, 5)
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Quick stats for overview
   const stats = [
     { label: 'Total Courts', value: '8', icon: Building2, color: 'mint' },
-    { label: 'Active Bookings', value: '24', icon: Calendar, color: 'blue' },
-    { label: 'Staff Members', value: '5', icon: Users, color: 'green' },
-    { label: 'Monthly Revenue', value: '$8,420', icon: DollarSign, color: 'purple' }
+    { label: 'Monthly Revenue', value: '$8,420', icon: DollarSign, color: 'blue' }
+  ];
+
+  // Management actions
+  const managementActions = [
+    {
+      title: 'Manage Courts',
+      description: 'Add, edit, and configure court settings',
+      icon: Building2,
+      color: 'mint',
+      bgColor: 'mint-500/20',
+      hoverColor: 'mint-500/30',
+      textColor: 'mint-400',
+      action: () => console.log('Navigate to courts management')
+    },
+    {
+      title: 'View Bookings',
+      description: 'Monitor and manage court reservations',
+      icon: Calendar,
+      color: 'blue',
+      bgColor: 'blue-500/20',
+      hoverColor: 'blue-500/30',
+      textColor: 'blue-400',
+      action: () => console.log('Navigate to bookings')
+    },
+    {
+      title: 'Staff Management',
+      description: 'Manage staff accounts and permissions',
+      icon: Users,
+      color: 'purple',
+      bgColor: 'purple-500/20',
+      hoverColor: 'purple-500/30',
+      textColor: 'purple-400',
+      action: () => console.log('Navigate to staff management')
+    },
+    {
+      title: 'Reports & Analytics',
+      description: 'View performance metrics and insights',
+      icon: BarChart3,
+      color: 'orange',
+      bgColor: 'orange-500/20',
+      hoverColor: 'orange-500/30',
+      textColor: 'orange-400',
+      action: () => console.log('Navigate to reports')
+    }
   ];
 
   const handleEditChange = (field: string, value: string) => {
@@ -97,7 +140,6 @@ export const FacilityDetailPage: React.FC = () => {
       return;
     }
 
-    // Validate time logic
     const openTime = new Date(`2000-01-01T${editData.openingTime}:00`);
     const closeTime = new Date(`2000-01-01T${editData.closingTime}:00`);
     
@@ -109,7 +151,6 @@ export const FacilityDetailPage: React.FC = () => {
     setIsLoading(true);
     setError('');
 
-    // Simulate API call
     setTimeout(() => {
       setFacility(prev => ({
         ...prev,
@@ -133,29 +174,37 @@ export const FacilityDetailPage: React.FC = () => {
   };
 
   const formatTime = (time: string) => {
-    return time.slice(0, 5); // Remove seconds for display
+    return time.slice(0, 5);
   };
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <motion.button
               onClick={() => window.history.back()}
-              className="p-2 text-slate-400 hover:text-white transition-colors"
+              className="p-2 text-slate-400 hover:text-white transition-colors rounded-xl hover:bg-slate-800/50"
               whileHover={{ x: -2 }}
             >
               <ArrowLeft className="w-6 h-6" />
             </motion.button>
             <div>
               <h1 className="text-3xl font-bold text-white mb-2">{facility.facilityName}</h1>
-              <p className="text-slate-300">Facility Management Dashboard</p>
+              <p className="text-slate-300">Facility ID: #{facility.facilityId}</p>
             </div>
           </div>
           
-          <div className="flex space-x-3">
+          <div className="flex items-center space-x-3">
+            <span className={`px-4 py-2 rounded-full text-sm font-medium ${
+              facility.facilityStatus === '1' 
+                ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
+                : 'bg-red-500/20 text-red-400 border border-red-500/30'
+            }`}>
+              {facility.facilityStatus === '1' ? 'Active' : 'Inactive'}
+            </span>
+            
             {!isEditing ? (
               <Button
                 onClick={() => setIsEditing(true)}
@@ -185,8 +234,8 @@ export const FacilityDetailPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Quick Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {stats.map((stat, index) => (
             <motion.div
               key={stat.label}
@@ -209,7 +258,7 @@ export const FacilityDetailPage: React.FC = () => {
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Facility Information */}
           <div className="lg:col-span-2">
             <motion.div
@@ -218,39 +267,14 @@ export const FacilityDetailPage: React.FC = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-white flex items-center space-x-2">
-                  <Building2 className="w-6 h-6 text-mint-400" />
-                  <span>Facility Information</span>
-                </h2>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  facility.facilityStatus === '1' 
-                    ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
-                    : 'bg-red-500/20 text-red-400 border border-red-500/30'
-                }`}>
-                  {facility.facilityStatus === '1' ? 'Active' : 'Inactive'}
-                </span>
-              </div>
+              <h2 className="text-xl font-semibold text-white mb-6 flex items-center space-x-2">
+                <Building2 className="w-6 h-6 text-mint-400" />
+                <span>Facility Information</span>
+              </h2>
 
               <ErrorMessage message={error} show={!!error} />
 
               <div className="space-y-6">
-                {/* Basic Info */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Facility Name</label>
-                    <div className="p-3 bg-slate-700/30 rounded-xl border border-slate-600/50">
-                      <p className="text-white">{facility.facilityName}</p>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Facility ID</label>
-                    <div className="p-3 bg-slate-700/30 rounded-xl border border-slate-600/50">
-                      <p className="text-white">#{facility.facilityId}</p>
-                    </div>
-                  </div>
-                </div>
-
                 {/* Description - Editable */}
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-2">Description</label>
@@ -258,11 +282,11 @@ export const FacilityDetailPage: React.FC = () => {
                     <textarea
                       value={editData.description}
                       onChange={(e) => handleEditChange('description', e.target.value)}
-                      className="w-full p-3 bg-slate-700/50 border-2 border-slate-600/50 rounded-xl focus:border-mint-500 focus:outline-none transition-all duration-300 text-white text-sm placeholder-slate-500 resize-none h-24"
+                      className="w-full p-4 bg-slate-700/50 border-2 border-slate-600/50 rounded-xl focus:border-mint-500 focus:outline-none transition-all duration-300 text-white text-sm placeholder-slate-500 resize-none h-24"
                       placeholder="Enter facility description..."
                     />
                   ) : (
-                    <div className="p-3 bg-slate-700/30 rounded-xl border border-slate-600/50">
+                    <div className="p-4 bg-slate-700/30 rounded-xl border border-slate-600/50">
                       <p className="text-white">{facility.description}</p>
                     </div>
                   )}
@@ -274,7 +298,7 @@ export const FacilityDetailPage: React.FC = () => {
                   {isEditing ? (
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-medium text-slate-400 mb-1">Opening Time</label>
+                        <label className="block text-xs font-medium text-slate-400 mb-2">Opening Time</label>
                         <input
                           type="time"
                           value={editData.openingTime}
@@ -283,7 +307,7 @@ export const FacilityDetailPage: React.FC = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-slate-400 mb-1">Closing Time</label>
+                        <label className="block text-xs font-medium text-slate-400 mb-2">Closing Time</label>
                         <input
                           type="time"
                           value={editData.closingTime}
@@ -293,16 +317,16 @@ export const FacilityDetailPage: React.FC = () => {
                       </div>
                     </div>
                   ) : (
-                    <div className="p-3 bg-slate-700/30 rounded-xl border border-slate-600/50">
-                      <div className="flex items-center space-x-4">
+                    <div className="p-4 bg-slate-700/30 rounded-xl border border-slate-600/50">
+                      <div className="flex items-center justify-center space-x-6">
                         <div className="flex items-center space-x-2">
-                          <Clock className="w-4 h-4 text-mint-400" />
-                          <span className="text-white">{formatTime(facility.openingTime)}</span>
+                          <Clock className="w-5 h-5 text-mint-400" />
+                          <span className="text-white font-medium">{formatTime(facility.openingTime)}</span>
                         </div>
-                        <span className="text-slate-400">to</span>
+                        <div className="w-8 h-0.5 bg-slate-500 rounded-full"></div>
                         <div className="flex items-center space-x-2">
-                          <Clock className="w-4 h-4 text-blue-400" />
-                          <span className="text-white">{formatTime(facility.closingTime)}</span>
+                          <Clock className="w-5 h-5 text-blue-400" />
+                          <span className="text-white font-medium">{formatTime(facility.closingTime)}</span>
                         </div>
                       </div>
                     </div>
@@ -313,19 +337,40 @@ export const FacilityDetailPage: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-slate-300 mb-2">Contact Phone</label>
-                    <div className="p-3 bg-slate-700/30 rounded-xl border border-slate-600/50">
-                      <div className="flex items-center space-x-2">
-                        <Phone className="w-4 h-4 text-green-400" />
-                        <p className="text-white">{facility.contactPhone}</p>
+                    <div className="p-4 bg-slate-700/30 rounded-xl border border-slate-600/50">
+                      <div className="flex items-center space-x-3">
+                        <Phone className="w-5 h-5 text-green-400" />
+                        <p className="text-white font-medium">{facility.contactPhone}</p>
                       </div>
                     </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-slate-300 mb-2">Contact Email</label>
-                    <div className="p-3 bg-slate-700/30 rounded-xl border border-slate-600/50">
-                      <div className="flex items-center space-x-2">
-                        <Mail className="w-4 h-4 text-blue-400" />
-                        <p className="text-white text-sm">{facility.contactEmail}</p>
+                    <div className="p-4 bg-slate-700/30 rounded-xl border border-slate-600/50">
+                      <div className="flex items-center space-x-3">
+                        <Mail className="w-5 h-5 text-blue-400" />
+                        <p className="text-white font-medium text-sm">{facility.contactEmail}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Location Information */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Location</label>
+                  <div className="p-4 bg-slate-700/30 rounded-xl border border-slate-600/50">
+                    <div className="flex items-start space-x-3">
+                      <MapPin className="w-5 h-5 text-mint-400 mt-0.5" />
+                      <div className="space-y-1">
+                        <p className="text-white font-medium">{facility.address}</p>
+                        <p className="text-slate-300 text-sm">
+                          {facility.ward}, {facility.district}, {facility.city}
+                        </p>
+                        {(facility.latitude !== 0 || facility.longtitude !== 0) && (
+                          <p className="text-slate-400 text-xs">
+                            Coordinates: {facility.latitude}, {facility.longtitude}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -334,98 +379,45 @@ export const FacilityDetailPage: React.FC = () => {
             </motion.div>
           </div>
 
-          {/* Location & Additional Info */}
-          <div className="space-y-6">
-            {/* Location Information */}
+          {/* Management Actions */}
+          <div>
             <motion.div
               className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <h3 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
-                <MapPin className="w-5 h-5 text-mint-400" />
-                <span>Location</span>
-              </h3>
-              
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Address</label>
-                  <p className="text-white text-sm">{facility.address}</p>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Ward</label>
-                  <p className="text-white text-sm">{facility.ward}</p>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">District</label>
-                  <p className="text-white text-sm">{facility.district}</p>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">City</label>
-                  <p className="text-white text-sm">{facility.city}</p>
-                </div>
-                
-                {(facility.latitude !== 0 || facility.longtitude !== 0) && (
-                  <div className="pt-2 border-t border-slate-600/50">
-                    <label className="block text-xs font-medium text-slate-400 mb-1">Coordinates</label>
-                    <p className="text-white text-sm">
-                      {facility.latitude}, {facility.longtitude}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-
-            {/* Management Info */}
-            <motion.div
-              className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <h3 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
-                <Users className="w-5 h-5 text-mint-400" />
+              <h3 className="text-lg font-semibold text-white mb-6 flex items-center space-x-2">
+                <Settings className="w-5 h-5 text-mint-400" />
                 <span>Management</span>
               </h3>
               
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Owner ID</label>
-                  <p className="text-white text-sm">#{facility.ownerId}</p>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Staff ID</label>
-                  <p className="text-white text-sm">#{facility.staffId}</p>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Quick Actions */}
-            <motion.div
-              className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.5 }}
-            >
-              <h3 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
-                <Settings className="w-5 h-5 text-mint-400" />
-                <span>Quick Actions</span>
-              </h3>
-              
-              <div className="space-y-3">
-                <button className="w-full bg-mint-500/20 text-mint-400 py-2 px-4 rounded-xl hover:bg-mint-500/30 transition-colors text-sm font-medium">
-                  Manage Courts
-                </button>
-                <button className="w-full bg-blue-500/20 text-blue-400 py-2 px-4 rounded-xl hover:bg-blue-500/30 transition-colors text-sm font-medium">
-                  View Bookings
-                </button>
-                <button className="w-full bg-purple-500/20 text-purple-400 py-2 px-4 rounded-xl hover:bg-purple-500/30 transition-colors text-sm font-medium">
-                  Staff Management
-                </button>
-                <button className="w-full bg-orange-500/20 text-orange-400 py-2 px-4 rounded-xl hover:bg-orange-500/30 transition-colors text-sm font-medium">
-                  Reports & Analytics
-                </button>
+              <div className="space-y-4">
+                {managementActions.map((action, index) => (
+                  <motion.button
+                    key={action.title}
+                    onClick={action.action}
+                    className={`w-full p-4 bg-${action.bgColor} hover:bg-${action.hoverColor} rounded-xl transition-all duration-300 text-left group border border-transparent hover:border-${action.color}-500/30`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 + index * 0.1 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-10 h-10 bg-${action.color}-500/30 rounded-lg flex items-center justify-center group-hover:bg-${action.color}-500/40 transition-colors`}>
+                          <action.icon className={`w-5 h-5 text-${action.textColor}`} />
+                        </div>
+                        <div>
+                          <h4 className="text-white font-medium text-sm">{action.title}</h4>
+                          <p className="text-slate-400 text-xs">{action.description}</p>
+                        </div>
+                      </div>
+                      <ChevronRight className={`w-4 h-4 text-${action.textColor} group-hover:translate-x-1 transition-transform`} />
+                    </div>
+                  </motion.button>
+                ))}
               </div>
             </motion.div>
           </div>
