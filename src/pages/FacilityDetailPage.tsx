@@ -270,13 +270,7 @@ export const FacilityDetailPage: React.FC = () => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.4 }}
                 >
-                  <Button
-                    onClick={() => setIsEditing(true)}
-                    icon={Edit3}
-                    className="bg-gradient-to-r from-mint-500/20 to-blue-500/20 border border-mint-500/30 hover:from-mint-500/30 hover:to-blue-500/30"
-                  >
-                    Edit Facility
-                  </Button>
+                  <div></div>
                 </motion.div>
               ) : (
                 <motion.div 
@@ -417,7 +411,7 @@ export const FacilityDetailPage: React.FC = () => {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
               className="bg-gradient-to-br from-slate-800/60 to-slate-700/40 backdrop-blur-xl rounded-2xl p-8 border border-slate-600/50"
-            >
+                <div className="flex items-center space-x-3 flex-1">
               <div className="flex items-center space-x-3 mb-8">
                 <div className="w-12 h-12 bg-gradient-to-br from-mint-500/30 to-blue-500/20 rounded-xl flex items-center justify-center">
                   <Building2 className="w-6 h-6 text-mint-400" />
@@ -426,90 +420,125 @@ export const FacilityDetailPage: React.FC = () => {
                   <h2 className="text-2xl font-bold text-white">Facility Information</h2>
                   <p className="text-slate-400">Manage your facility details</p>
                 </div>
+                
+                {/* Edit Button moved here */}
+                {!isEditing ? (
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 }}
+                  >
+                    <Button
+                      onClick={() => setIsEditing(true)}
+                      icon={Edit3}
+                      className="bg-gradient-to-r from-mint-500/20 to-blue-500/20 border border-mint-500/30 hover:from-mint-500/30 hover:to-blue-500/30"
+                    >
+                      Edit Facility
+                    </Button>
+                  </motion.div>
+                ) : (
+                  <motion.div 
+                    className="flex space-x-3"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                  >
+                    <Button
+                      onClick={handleCancel}
+                      variant="secondary"
+                      icon={X}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleSave}
+                      loading={isLoading}
+                      icon={Save}
+                    >
+                      Save Changes
+                    </Button>
+                  </motion.div>
+                )}
               </div>
 
               <ErrorMessage message={error} show={!!error} />
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Left Column */}
-                <div className="space-y-6">
-                  {/* Description */}
-                  <div className="space-y-3">
-                    <label className="flex items-center space-x-2 text-sm font-medium text-slate-300">
-                      <Edit3 className="w-4 h-4" />
-                      <span>Description</span>
-                    </label>
-                    {isEditing ? (
-                      <textarea
-                        value={editData.description}
-                        onChange={(e) => handleEditChange('description', e.target.value)}
-                        className="w-full p-4 bg-slate-700/50 border-2 border-slate-600/50 rounded-xl focus:border-mint-500 focus:outline-none transition-all duration-300 text-white text-sm placeholder-slate-500 resize-none h-32"
-                        placeholder="Enter facility description..."
-                      />
-                    ) : (
-                      <div className="p-4 bg-slate-700/30 rounded-xl border border-slate-600/50">
-                        <p className="text-white leading-relaxed">{facility.description}</p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Operating Hours */}
-                  <div className="space-y-3">
-                    <label className="flex items-center space-x-2 text-sm font-medium text-slate-300">
-                      <Clock className="w-4 h-4" />
-                      <span>Operating Hours</span>
-                    </label>
-                    {isEditing ? (
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-xs font-medium text-slate-400 mb-2">Opening Time</label>
-                          <input
-                            type="time"
-                            value={editData.openingTime}
-                            onChange={(e) => handleEditChange('openingTime', e.target.value)}
-                            className="w-full p-3 bg-slate-700/50 border-2 border-slate-600/50 rounded-xl focus:border-mint-500 focus:outline-none transition-all duration-300 text-white"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium text-slate-400 mb-2">Closing Time</label>
-                          <input
-                            type="time"
-                            value={editData.closingTime}
-                            onChange={(e) => handleEditChange('closingTime', e.target.value)}
-                            className="w-full p-3 bg-slate-700/50 border-2 border-slate-600/50 rounded-xl focus:border-mint-500 focus:outline-none transition-all duration-300 text-white"
-                          />
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="p-4 bg-slate-700/30 rounded-xl border border-slate-600/50">
-                        <div className="flex items-center justify-center space-x-8">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-mint-500/20 rounded-lg flex items-center justify-center">
-                              <Clock className="w-5 h-5 text-mint-400" />
-                            </div>
-                            <div>
-                              <p className="text-xs text-slate-400">Opens</p>
-                              <p className="text-white font-semibold">{formatTime(facility.openingTime)}</p>
-                            </div>
-                          </div>
-                          <div className="w-12 h-0.5 bg-gradient-to-r from-mint-400 to-blue-400 rounded-full"></div>
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                              <Clock className="w-5 h-5 text-blue-400" />
-                            </div>
-                            <div>
-                              <p className="text-xs text-slate-400">Closes</p>
-                              <p className="text-white font-semibold">{formatTime(facility.closingTime)}</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+              <div className="space-y-8">
+                {/* Description Section */}
+                <div className="space-y-4">
+                  <h3 className="flex items-center space-x-2 text-lg font-semibold text-white">
+                    <Edit3 className="w-5 h-5 text-mint-400" />
+                    <span>Description</span>
+                  </h3>
+                  {isEditing ? (
+                    <textarea
+                      value={editData.description}
+                      onChange={(e) => handleEditChange('description', e.target.value)}
+                      className="w-full p-4 bg-slate-700/50 border-2 border-slate-600/50 rounded-xl focus:border-mint-500 focus:outline-none transition-all duration-300 text-white text-sm placeholder-slate-500 resize-none h-32"
+                      placeholder="Enter facility description..."
+                    />
+                  ) : (
+                    <div className="p-4 bg-slate-700/30 rounded-xl border border-slate-600/50">
+                      <p className="text-white leading-relaxed">{facility.description}</p>
+                    </div>
+                  )}
                 </div>
 
-                {/* Right Column */}
-                <div className="space-y-6">
+                {/* Operating Hours Section */}
+                <div className="space-y-4">
+                  <h3 className="flex items-center space-x-2 text-lg font-semibold text-white">
+                    <Clock className="w-5 h-5 text-mint-400" />
+                    <span>Operating Hours</span>
+                  </h3>
+                  {isEditing ? (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-2">Opening Time</label>
+                        <input
+                          type="time"
+                          value={editData.openingTime}
+                          onChange={(e) => handleEditChange('openingTime', e.target.value)}
+                          className="w-full p-3 bg-slate-700/50 border-2 border-slate-600/50 rounded-xl focus:border-mint-500 focus:outline-none transition-all duration-300 text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-2">Closing Time</label>
+                        <input
+                          type="time"
+                          value={editData.closingTime}
+                          onChange={(e) => handleEditChange('closingTime', e.target.value)}
+                          className="w-full p-3 bg-slate-700/50 border-2 border-slate-600/50 rounded-xl focus:border-mint-500 focus:outline-none transition-all duration-300 text-white"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-4 bg-slate-700/30 rounded-xl border border-slate-600/50">
+                      <div className="flex items-center justify-center space-x-8">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-mint-500/20 rounded-lg flex items-center justify-center">
+                            <Clock className="w-5 h-5 text-mint-400" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-slate-400">Opens</p>
+                            <p className="text-white font-semibold">{formatTime(facility.openingTime)}</p>
+                          </div>
+                        </div>
+                        <div className="w-12 h-0.5 bg-gradient-to-r from-mint-400 to-blue-400 rounded-full"></div>
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                            <Clock className="w-5 h-5 text-blue-400" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-slate-400">Closes</p>
+                            <p className="text-white font-semibold">{formatTime(facility.closingTime)}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Contact Information and Location in Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {/* Contact Information */}
                   <div className="space-y-4">
                     <h3 className="flex items-center space-x-2 text-lg font-semibold text-white">
@@ -567,6 +596,38 @@ export const FacilityDetailPage: React.FC = () => {
                           {(facility.latitude !== 0 || facility.longtitude !== 0) && (
                             <p className="text-slate-400 text-xs">
                               📍 {facility.latitude}, {facility.longtitude}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === 'analytics' && (
+            <motion.div
+              key="analytics"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="bg-gradient-to-br from-slate-800/60 to-slate-700/40 backdrop-blur-xl rounded-2xl p-8 border border-slate-600/50"
+            >
+              <div className="text-center py-16">
+                <TrendingUp className="w-16 h-16 text-slate-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-white mb-2">Analytics Dashboard</h3>
+                <p className="text-slate-400">Detailed analytics and reports will be available here</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </DashboardLayout>
+  );
+};
                             </p>
                           )}
                         </div>
